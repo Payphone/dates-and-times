@@ -7,7 +7,8 @@
                          (May . 31) (June . 30) (July . 31) (August . 31)
                          (September . 30) (October . 31) (November . 30)
                          (December . 31)))
-(defclass date ()
+
+(defclass timestamp ()
   ((sec :initarg :sec :accessor sec)
    (minute :initarg :minute :accessor minute)
    (hour :initarg :hour :accessor hour)
@@ -18,7 +19,7 @@
    (daylight-savings-p :initarg :daylight-savings-p :accessor daylight-savings-p)
    (timezone :initarg :timezone :accessor timezone)))
 
-(defmethod universal->date ((universal integer))
+(defmethod universal->timestamp ((universal integer))
   (multiple-value-bind (sec minute hour day month year day-of-week
                               daylight-savings-p timezone)
       (decode-universal-time universal)
@@ -26,23 +27,50 @@
                    :month month :year year :day-of-week day-of-week
                    :daylight-savings-p daylight-savings-p :timezone timezone)))
 
-(defmethod leap-year-p ((date date))
-  (if (= (mod (year date) 4) 0)
+(defmethod timestamp->universal ((ts timestamp))
+  (encode-universal-time (sec ts) (minute ts) (hour ts) (day ts)
+                         (month ts) (year ts) (timezone ts)))
+
+(defmethod universal->epoch ((universal integer))
+  (let ((seconds-in-a-year 31556926))
+    (+ universal (* seconds-in-a-year 70))))
+
+(defmethod timestamp->epoch ((ts timestamp))
+  (universal->epoch (timestamp->universal ts)))
+
+(defmethod epoch->universal ((epoch integer))
+  (let ((seconds-in-a-year 31556926))
+    (- epoch (* seconds-in-a-year 70))))
+
+(defmethod epoch->timestamp ((epoch integer))
+  (universal->timestamp (epoch->universal epoch)))
+
+(defmethod leap-year-p ((ts timestamp))
+  (if (= (mod (year ts) 4) 0)
       t))
 
-(defmacro compare-dates (date1 date2 function &key (return t) value-functions)
-  `(cond ,@(mapcar #'(lambda (fn) `((funcall ,function (funcall #',fn ,date1)
-                                             (funcall #',fn ,date2)) ,return))
+(defmacro compare-timestamps (timestamp1 timestamp2 function &key (return t)
+                                                               value-functions)
+  `(cond ,@(mapcar #'(lambda (fn) `((funcall ,function (funcall #',fn ,timestamp1)
+                                             (funcall #',fn ,timestamp2)) ,return))
                    value-functions)))
 
-(defmacro define-date-comparison (name function &key (return t) (value-functions
-                                                                 '(year month day)))
-  `(defmethod ,name ((d1 date) (d2 date))
-     (compare-dates d1 d2 ,function :return ,return
+(defmacro define-timestamp-comparison (name function &key (return t)
+                                                       (value-functions '(year
+                                                                          month
+                                                                          day)))
+  `(defmethod ,name ((ts1 timestamp) (ts2 timestamp))
+     (compare-dates ts1 ts2 ,function :return ,return
                     :value-functions ,value-functions)))
 
-(define-date-comparison date< #'<)
-(define-date-comparison date> #'>)
-(define-date-comparison date= #'=)
-(define-date-comparison date<= #'<=)
-(define-date-comparison date>= #'>=)
+(define-timestamp-comparison date< #'<)
+(define-timestamp-comparison date> #'>)
+(define-timestamp-comparison date= #'=)
+(define-timestamp-comparison date<= #'<=)
+(define-timestamp-comparison date>= #'>=)
+
+(define-timestamp-comparison time< #'< :value-functions '(hour minute second))
+(define-timestamp-comparison time> #'> :value-functions '(hour minute second))
+(define-timestamp-comparison time= #'= :value-functions '(hour minute second))
+(define-timestamp-comparison time<= #'<= :value-functions '(hour minute second))
+(define-timestamp-comparison time>= #'>= :value-functions '(hour minute second))

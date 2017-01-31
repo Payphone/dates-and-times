@@ -4,7 +4,7 @@
   (:use #:cl #:peyton-utils)
   (:export #:*days*
            #:*months*
-           #:date
+           #:timestamp
            #:sec
            #:minute
            #:hour
@@ -14,11 +14,21 @@
            #:day-of-week
            #:daylight-savings-p
            #:timezone
-           #:universal->date
+           #:universal->timestamp
+           #:timestamp->universal
+           #:universal->epoch
+           #:timestamp->epoch
+           #:epoch->universal
+           #:epoch->timestamp
            #:leap-year-p
-           #:define-date-comparison
+           #:define-timestamp-comparison
            #:date<
            #:date<=
            #:date>
            #:date>=
-           #:date=))
+           #:date=
+           #:time<
+           #:time<=
+           #:time>
+           #:time>=
+           #:time=))
