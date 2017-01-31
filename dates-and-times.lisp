@@ -23,7 +23,7 @@
   (multiple-value-bind (sec minute hour day month year day-of-week
                               daylight-savings-p timezone)
       (decode-universal-time universal)
-    (make-instance 'date :sec sec :minute minute :hour hour :day day
+    (make-instance 'timestamp :sec sec :minute minute :hour hour :day day
                    :month month :year year :day-of-week day-of-week
                    :daylight-savings-p daylight-savings-p :timezone timezone)))
 
@@ -69,8 +69,8 @@
 (define-timestamp-comparison date<= #'<=)
 (define-timestamp-comparison date>= #'>=)
 
-(define-timestamp-comparison time< #'< :value-functions '(hour minute second))
-(define-timestamp-comparison time> #'> :value-functions '(hour minute second))
-(define-timestamp-comparison time= #'= :value-functions '(hour minute second))
-(define-timestamp-comparison time<= #'<= :value-functions '(hour minute second))
-(define-timestamp-comparison time>= #'>= :value-functions '(hour minute second))
+(define-timestamp-comparison time< #'< :value-functions (hour minute second))
+(define-timestamp-comparison time> #'> :value-functions (hour minute second))
+(define-timestamp-comparison time= #'= :value-functions (hour minute second))
+(define-timestamp-comparison time<= #'<= :value-functions (hour minute second))
+(define-timestamp-comparison time>= #'>= :value-functions (hour minute second))
