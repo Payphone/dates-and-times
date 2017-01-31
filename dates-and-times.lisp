@@ -31,14 +31,14 @@
   (encode-universal-time (sec ts) (minute ts) (hour ts) (day ts)
                          (month ts) (year ts) (timezone ts)))
 
-(defmethod universal->epoch ((universal integer))
+(defmethod epoch->universal ((universal integer))
   (let ((seconds-in-a-year 31556926))
     (+ universal (* seconds-in-a-year 70))))
 
 (defmethod timestamp->epoch ((ts timestamp))
   (universal->epoch (timestamp->universal ts)))
 
-(defmethod epoch->universal ((epoch integer))
+(defmethod universal->epoch ((epoch integer))
   (let ((seconds-in-a-year 31556926))
     (- epoch (* seconds-in-a-year 70))))
 
